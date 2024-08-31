@@ -2,8 +2,11 @@
 import '../scss/styles.scss'
 // Import all of Bootstrap's JS
 import * as bootstrap from 'bootstrap'
+// Importar estilos CSS
+import '../css/style.css'
 // Importar componenetes
 import { Card } from "./components/card";
+import { Pagination } from "./components/pagination";
 
 const menuRegiones = document.querySelector('#regiones-menu')
 const menuSubRegiones1 = document.querySelector('#subregiones-menu-1')
@@ -13,6 +16,7 @@ const cardCountries2 = document.querySelector('#card-countries-2')
 const cardCountries3 = document.querySelector('#card-countries-3')
 const cardCountries4 = document.querySelector('#card-countries-4')
 const cardCountries5 = document.querySelector('#card-countries-5')
+const paginacion = document.querySelector('#paginacion')
 
 function main() {
     const countriesAll = request('https://restcountries.com/v3.1/all')
@@ -22,6 +26,7 @@ function main() {
         rendererMenuRegion(data)
         rendererMenuSubregion(data)
         rendererCardCountries(data)
+        rendererPagination()
     })
     .catch((error) => console.error(error))
 }
@@ -107,6 +112,10 @@ function rendererCardCountries(data) {
             cardCountries5.innerHTML += Card(data[i].name.common, data[i].name.official, data[i].flags.png)
         }
     }
+}
+
+function rendererPagination() {
+    paginacion.innerHTML = Pagination(10)
 }
 
 document.addEventListener('DOMContentLoaded', main)
