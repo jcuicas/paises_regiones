@@ -16,17 +16,17 @@ const cardCountries2 = document.querySelector('#card-countries-2')
 const cardCountries3 = document.querySelector('#card-countries-3')
 const cardCountries4 = document.querySelector('#card-countries-4')
 const cardCountries5 = document.querySelector('#card-countries-5')
-const paginacion = document.querySelector('#paginacion')
+const paginacion = document.querySelector('#pagination-selector')
 
 function main() {
     const countriesAll = request('https://restcountries.com/v3.1/all')
-
+    
     countriesAll
     .then((data) => {
         rendererMenuRegion(data)
         rendererMenuSubregion(data)
-        rendererCardCountries(data)
-        rendererPagination()
+        rendererCardCountries({data:data, numberCountries:25, index:0})
+        rendererPagination(data)
     })
     .catch((error) => console.error(error))
 }
@@ -40,6 +40,7 @@ Array.prototype.clean = function() {
         return this
     }
 }
+
 
 async function request(url) {
     const response = await fetch(url)
@@ -94,19 +95,18 @@ function rendererMenuSubregion(data) {
     })
 }
 
-function rendererCardCountries(data) {
+function rendererCardCountries({data, numberCountries, index}) {
     //console.log(`Cantidad de paises: ${data.length}`)
     //console.log(data[0])
-    const countCountries = 25
 
-    for (let i = 0; i < countCountries; i++) {
-        if (i <= 4) {
+    for (let i = index; i < numberCountries; i++) {
+        if (i <= 4 + index) {
             cardCountries1.innerHTML += Card(data[i].name.common, data[i].name.official, data[i].flags.png)
-        } else if (i > 4 && i <= 9) {
+        } else if (i > 4 + index && i <= 9 + index) {
             cardCountries2.innerHTML += Card(data[i].name.common, data[i].name.official, data[i].flags.png)
-        } else if (i > 9 && i <= 14) {
+        } else if (i > 9 + index && i <= 14 + index) {
             cardCountries3.innerHTML += Card(data[i].name.common, data[i].name.official, data[i].flags.png)
-        } else if (i > 14 && i <= 19) {
+        } else if (i > 14 + index && i <= 19 + index) {
             cardCountries4.innerHTML += Card(data[i].name.common, data[i].name.official, data[i].flags.png)
         } else {
             cardCountries5.innerHTML += Card(data[i].name.common, data[i].name.official, data[i].flags.png)
@@ -114,8 +114,68 @@ function rendererCardCountries(data) {
     }
 }
 
-function rendererPagination() {
-    paginacion.innerHTML = Pagination(10)
+function rendererPagination(data) {
+    paginacion.innerHTML = Pagination({numberPage: 10, activePage: 0})
+
+    let countries = [
+        {'data': data, 'numberCountries': 25, 'index': 0},
+        {'data': data, 'numberCountries': 25, 'index': 0},
+        {'data': data, 'numberCountries': 50, 'index': 25},
+        {'data': data, 'numberCountries': 75, 'index': 50},
+        {'data': data, 'numberCountries': 100, 'index': 75},
+        {'data': data, 'numberCountries': 125, 'index': 100},
+        {'data': data, 'numberCountries': 150, 'index': 125},
+        {'data': data, 'numberCountries': 175, 'index': 150},
+        {'data': data, 'numberCountries': 200, 'index': 175},
+        {'data': data, 'numberCountries': 225, 'index': 200},
+        {'data': data, 'numberCountries': 250, 'index': 225},
+        {'data': data, 'numberCountries': 250, 'index': 225},
+    ]
+
+        // Selecciona todos los enlaces de paginación
+        const paginationLinks = document.querySelectorAll('.pagination .page-link');
+        //console.log(paginationLinks)
+        const paginationPageItems = document.querySelectorAll('.pagination .page-item');
+        console.log(paginationPageItems)
+
+        // Agrega un event listener a cada enlace
+        paginationLinks.forEach((link) => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault(); // Evita el comportamiento por defecto
+        
+                // Obtén el número de página desde el texto del enlace
+                const pageNumber = this.textContent;
+                console.log(`Clic en la página: ${pageNumber}`);
+        
+                // Aquí puedes agregar la lógica para manejar la paginación
+                // Por ejemplo, cargar nuevos datos o actualizar el contenido de la página
+                cardCountries1.innerHTML = ''
+                cardCountries2.innerHTML = ''
+                cardCountries3.innerHTML = ''
+                cardCountries4.innerHTML = ''
+                cardCountries5.innerHTML = ''
+                
+                if (pageNumber === 'Primero') {
+                    rendererCardCountries(countries[0])
+                    handlePageItemActive(paginationPageItems)
+                    paginationPageItems[1].classList.add('active')
+                } else if (pageNumber === 'Último') {
+                    rendererCardCountries(countries[11])
+                    handlePageItemActive(paginationPageItems)
+                    paginationPageItems[10].classList.add('active')
+                } else {
+                    rendererCardCountries(countries[pageNumber])
+                    handlePageItemActive(paginationPageItems)
+                    paginationPageItems[pageNumber].classList.add('active')
+                }
+            });
+        }); 
+}
+
+function handlePageItemActive(pageItem) {
+    pageItem.forEach((item) => {
+        item.classList.remove('active')
+    }) 
 }
 
 document.addEventListener('DOMContentLoaded', main)
